@@ -72,52 +72,6 @@ class AnimatedState extends State<Animated> with SingleTickerProviderStateMixin 
   }
 }
 
-class AnimatableValue<T> {
-  AnimatableValue({double value = 0.0}) : _value = value;
-
-  double _value = 0.0;
-  double _oldValue = 0.0;
-  Animation<double>? animation;
-  AnimationController? controller;
-  bool shouldAnimate = false;
-
-  set value(double v) {
-    print('set value: $v');
-    if (_value == v) return;
-    _oldValue = _value;
-    _value = v;
-    // shouldAnimate = true;
-    print('oldValue: $_oldValue , value: $_value');
-  }
-
-  double get value {
-    print('get value: $_value');
-    if (animation == null) {
-      print(' animation is null, return value: $_value');
-      return _value;
-    }
-    return lerpDouble(_oldValue, _value, animation!.value)!;
-  }
-
-  // Override * operator
-  AnimatableValue<T> operator *(double scalar) {
-    return ReadonlyAnimatableValue(parent: this, scalar: scalar);
-  }
-}
-
-class ReadonlyAnimatableValue<T> extends AnimatableValue<T> {
-  ReadonlyAnimatableValue({
-    required this.parent,
-    this.scalar = 1.0,
-  });
-
-  AnimatableValue<T>? parent;
-  double scalar = 1.0;
-  double get value {
-    return parent!.value * scalar!;
-  }
-}
-
 class AnimatedNotifier extends InheritedNotifier<Animation<double>> {
   const AnimatedNotifier({
     super.key,
