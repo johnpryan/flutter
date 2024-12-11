@@ -66,8 +66,4 @@ class _MyAnimatedButtonState extends State<MyAnimatedButton> {
       ],
     );
   }
-
-  void withAnimation(AnimatableValue<double> value, void Function() callback) {
-    callback();
-  }
 }
