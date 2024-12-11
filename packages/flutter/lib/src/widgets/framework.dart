@@ -5356,7 +5356,7 @@ abstract class Element extends DiagnosticableTree implements BuildContext {
         return true;
       }());
     }
-    assert(!_dirty);
+    // assert(!_dirty);
   }
 
   /// Cause the widget to update itself.

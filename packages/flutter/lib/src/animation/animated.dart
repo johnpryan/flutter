@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 
 import 'dart:ui' show lerpDouble;
 
+import '../../scheduler.dart';
+
 /// A widget that applies animated effects to its child.
 class Animated extends StatefulWidget {
   /// Creates a widget that applies animated effects to its child.
@@ -49,10 +51,17 @@ class AnimatedState extends State<Animated> with SingleTickerProviderStateMixin 
       _animation.dispose();
       _animation = _createCurve();
     }
+
+    if (widget.value != oldWidget.value) {
+      // print('forward() called in AnimatedState.didUpdateWidget');
+      // SchedulerBinding.instance.addPostFrameCallback((_) {
+      //   print('in postFrameCallback');
+      // forward();
+      // });
+    }
   }
 
   void forward() {
-    print(' forward:  ${controller.status}');
     if (controller.status == AnimationStatus.dismissed) {
       controller.forward();
     } else if (controller.status == AnimationStatus.completed) {
@@ -81,6 +90,59 @@ class AnimatedNotifier extends InheritedNotifier<Animation<double>> {
 
   static AnimatedNotifier of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<AnimatedNotifier>()!;
+  }
+}
+
+mixin AnimatableWidgetMixin {
+  void forEachTween(TweenVisitor<dynamic> visitor);
+
+  bool _shouldAnimateTween(Tween<dynamic> tween, dynamic targetValue) {
+    return targetValue != (tween.end ?? tween.begin);
+  }
+
+  void _updateTween(Tween<dynamic>? tween, dynamic targetValue, Animation<double> animation) {
+    if (tween == null) {
+      return;
+    }
+    tween
+      ..begin = tween.evaluate(animation)
+      ..end = targetValue;
+  }
+
+  bool constructTweens() {
+    bool shouldStartAnimation = false;
+    forEachTween((Tween<dynamic>? tween, dynamic targetValue,
+        TweenConstructor<dynamic> constructor) {
+      if (targetValue != null) {
+        tween ??= constructor(targetValue);
+        if (_shouldAnimateTween(tween, targetValue)) {
+          shouldStartAnimation = true;
+        } else {
+          tween.end ??= tween.begin;
+        }
+      } else {
+        tween = null;
+      }
+      return tween;
+    });
+    return shouldStartAnimation;
+  }
+
+  void updateTweens(AnimatedState? animatedState) {
+    // TODO: is it always OK to skip updating tweens when state is null?
+    if (animatedState == null) {
+      return;
+    }
+
+    if (constructTweens()) {
+      forEachTween((Tween<dynamic>? tween, dynamic targetValue,
+          TweenConstructor<dynamic> constructor) {
+        _updateTween(tween, targetValue, animatedState.animation);
+        return tween;
+      });
+      // print('animatedState.forward() called in constructTweens()');
+      animatedState.forward();
+    }
   }
 }
 

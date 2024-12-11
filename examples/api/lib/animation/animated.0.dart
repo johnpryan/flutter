@@ -11,9 +11,7 @@ class ScaleEffectApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: ScaleEffectScreen(),
-    );
+    return const MaterialApp(home: ScaleEffectScreen());
   }
 }
 
@@ -22,11 +20,7 @@ class ScaleEffectScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: MyAnimatedButton(),
-      ),
-    );
+    return const Scaffold(body: Center(child: MyAnimatedButton()));
   }
 }
 
@@ -39,31 +33,39 @@ class MyAnimatedButton extends StatefulWidget {
 
 class _MyAnimatedButtonState extends State<MyAnimatedButton> {
   double scale = 1.0;
-  final startScale = 1.0;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            for (var i = 0; i < 2; i++)
-              Container(
-                height: scale * 50,
-                width: scale * 100,
-                child: TextButton(
-                  onPressed: () {
-                    setState(() {
-                      scale += 1;
-                    });
-                  },
-                  child: const Text("Press here"),
-                ),
-              ),
-          ],
-        ).animated(value: scale),
-
-      ],
+    return Animated(
+      value: scale,
+      child: Column(
+        children: [
+          Container(
+            height: scale * 50,
+            width: scale * 100,
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  scale += 1;
+                });
+              },
+              child: const Text("Press here"),
+            ),
+          ),
+          Container(
+            height: scale * 50,
+            width: scale * 100,
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  scale += 1;
+                });
+              },
+              child: const Text("Press here"),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

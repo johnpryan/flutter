@@ -382,7 +382,7 @@ class Container extends StatefulWidget {
   State<Container> createState() => _ContainerState();
 }
 
-class _ContainerState extends State<Container> {
+class _ContainerState extends State<Container> with AnimatableWidgetMixin {
   BoxConstraintsTween? _constraintsTween;
   EdgeInsetsGeometry? get _paddingIncludingDecoration {
     return switch ((widget.padding, widget.decoration?.padding)) {
@@ -394,9 +394,16 @@ class _ContainerState extends State<Container> {
 
   void initState() {
     super.initState();
-    _constructTweens();
+    constructTweens();
   }
 
+  @override
+  void didUpdateWidget(Container oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    updateTweens(context.findAncestorStateOfType<AnimatedState>());
+  }
+
+  @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
     _constraintsTween = visitor(
       _constraintsTween,
@@ -405,57 +412,6 @@ class _ContainerState extends State<Container> {
     ) as BoxConstraintsTween?;
   }
 
-  bool _shouldAnimateTween(Tween<dynamic> tween, dynamic targetValue) {
-    return targetValue != (tween.end ?? tween.begin);
-  }
-
-  void _updateTween(Tween<dynamic>? tween, dynamic targetValue, Animation<double> animation) {
-    if (tween == null) {
-      return;
-    }
-    tween
-      ..begin = tween.evaluate(animation)
-      ..end = targetValue;
-  }
-
-  bool _constructTweens() {
-    bool shouldStartAnimation = false;
-    forEachTween((Tween<dynamic>? tween, dynamic targetValue,
-        TweenConstructor<dynamic> constructor) {
-      if (targetValue != null) {
-        tween ??= constructor(targetValue);
-        if (_shouldAnimateTween(tween, targetValue)) {
-          shouldStartAnimation = true;
-        } else {
-          tween.end ??= tween.begin;
-        }
-      } else {
-        tween = null;
-      }
-      return tween;
-    });
-    return shouldStartAnimation;
-  }
-
-  @override
-  void didUpdateWidget(Container oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final animatedState = context.findAncestorStateOfType<AnimatedState>();
-
-    // TODO: is it always OK to skip updating tweens when state is null?
-    if (animatedState == null) {
-      return;
-    }
-
-    if (_constructTweens()) {
-      forEachTween((Tween<dynamic>? tween, dynamic targetValue,
-          TweenConstructor<dynamic> constructor) {
-        _updateTween(tween, targetValue, animatedState.animation);
-        return tween;
-      });
-      animatedState.forward();
-    }
-  }
   @override
   Widget build(BuildContext context) {
     Widget? current = widget.child;
