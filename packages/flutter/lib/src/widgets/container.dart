@@ -383,7 +383,7 @@ class Container extends StatefulWidget {
 }
 
 class _ContainerState extends State<Container> {
-  BoxConstraintsTween? _constraints;
+  BoxConstraintsTween? _constraintsTween;
   EdgeInsetsGeometry? get _paddingIncludingDecoration {
     return switch ((widget.padding, widget.decoration?.padding)) {
       (null, final EdgeInsetsGeometry? padding) => padding,
@@ -398,8 +398,8 @@ class _ContainerState extends State<Container> {
   }
 
   void forEachTween(TweenVisitor<dynamic> visitor) {
-    _constraints = visitor(
-      _constraints,
+    _constraintsTween = visitor(
+      _constraintsTween,
       widget.constraints,
           (dynamic value) => BoxConstraintsTween(begin: value as BoxConstraints),
     ) as BoxConstraintsTween?;
@@ -441,7 +441,6 @@ class _ContainerState extends State<Container> {
   void didUpdateWidget(Container oldWidget) {
     super.didUpdateWidget(oldWidget);
     final animatedState = context.findAncestorStateOfType<AnimatedState>();
-    print("animatedState = $animatedState");
 
     // TODO: is it always OK to skip updating tweens when state is null?
     if (animatedState == null) {
@@ -449,7 +448,6 @@ class _ContainerState extends State<Container> {
     }
 
     if (_constructTweens()) {
-      print('debug _constructTweens');
       forEachTween((Tween<dynamic>? tween, dynamic targetValue,
           TweenConstructor<dynamic> constructor) {
         _updateTween(tween, targetValue, animatedState.animation);
@@ -463,10 +461,9 @@ class _ContainerState extends State<Container> {
     Widget? current = widget.child;
 
     final notifier = context.dependOnInheritedWidgetOfExactType<AnimatedNotifier>();
-    print('notifier = $notifier');
     final BoxConstraints? constraints;
     if (notifier != null) {
-       constraints = _constraints?.animate(notifier.notifier!).value;
+       constraints = _constraintsTween?.animate(notifier.notifier!).value;
     } else {
       constraints = widget.constraints;
     }

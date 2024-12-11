@@ -64,7 +64,6 @@ class AnimatedState extends State<Animated> with SingleTickerProviderStateMixin 
 
   @override
   Widget build(BuildContext context) {
-    print('Animated Widget build()');
     return AnimatedNotifier(
       notifier: animation,
       child: widget.child,
@@ -83,10 +82,6 @@ class AnimatedNotifier extends InheritedNotifier<Animation<double>> {
   static AnimatedNotifier of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<AnimatedNotifier>()!;
   }
-
-  @override
-  bool updateShouldNotify(AnimatedNotifier oldWidget) =>
-      notifier?.value != oldWidget.notifier?.value;
 }
 
 /// Adds [animated] extension to [Widget].
