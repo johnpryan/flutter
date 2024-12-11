@@ -19,7 +19,7 @@ class Animated extends StatefulWidget {
   /// The curve to apply when animating the parameters of this container.
   final Curve curve;
 
-  final AnimatableValue<double> value;
+  final Object? value;
 
   @override
   State<Animated> createState() => AnimatedState();
@@ -43,22 +43,11 @@ class AnimatedState extends State<Animated> with SingleTickerProviderStateMixin 
 
   @override
   void didUpdateWidget(Animated oldWidget) {
-    print('debug -AnimatedState didUpdateWidget');
-
-    print('animated value: ${widget.value.value}');
-
     super.didUpdateWidget(oldWidget);
-
-    widget.value.animation = _animation;
 
     if (widget.curve != oldWidget.curve) {
       _animation.dispose();
       _animation = _createCurve();
-    }
-    if (widget.value.shouldAnimate) {
-      print('value changed haha forward ');
-      forward();
-      widget.value.shouldAnimate = false;
     }
   }
 
@@ -97,7 +86,7 @@ class AnimatableValue<T> {
     if (_value == v) return;
     _oldValue = _value;
     _value = v;
-    shouldAnimate = true;
+    // shouldAnimate = true;
     print('oldValue: $_oldValue , value: $_value');
   }
 
@@ -129,12 +118,13 @@ class ReadonlyAnimatableValue<T> extends AnimatableValue<T> {
   }
 }
 
-class AnimatedNotifier extends InheritedNotifier<ValueListenable<double>> {
+class AnimatedNotifier extends InheritedNotifier<Animation<double>> {
   const AnimatedNotifier({
     super.key,
     super.notifier,
     required super.child,
   });
+
 
   static AnimatedNotifier of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<AnimatedNotifier>()!;
@@ -157,7 +147,7 @@ extension AnimateWidgetExtensions on Widget {
     Duration? delay,
     AnimationController? controller,
     double? target,
-    required AnimatableValue<double> value,
+    required Object? value,
   }) =>
       Animated(
         key: key,

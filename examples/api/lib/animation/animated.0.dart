@@ -38,7 +38,7 @@ class MyAnimatedButton extends StatefulWidget {
 }
 
 class _MyAnimatedButtonState extends State<MyAnimatedButton> {
-  final AnimatableValue<double> scale = AnimatableValue<double>(value: 1.0);
+  double scale = 1.0;
   final startScale = 1.0;
 
   @override
@@ -54,7 +54,7 @@ class _MyAnimatedButtonState extends State<MyAnimatedButton> {
                 child: TextButton(
                   onPressed: () {
                     setState(() {
-                      scale.value += 1;
+                      scale += 1;
                     });
                   },
                   child: const Text("Press here"),
